@@ -1,0 +1,473 @@
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+    direction: ltr; /* Default to LTR, will be toggled by JS */
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    overflow: hidden;
+    padding: 0 20px;
+}
+
+header {
+    background: #333;
+    color: #fff;
+    padding-top: 10px;
+    min-height: 70px;
+    border-bottom: #0779e4 3px solid;
+}
+
+header .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 20px;
+    font-size: 0.9em;
+}
+
+header .controls button,
+header .controls a {
+    color: #fff;
+    background: #555;
+    border: none;
+    padding: 5px 10px;
+    margin-left: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 8px; /* Increased roundness */
+    transition: background-color 0.3s ease;
+}
+
+header .controls button:hover,
+header .controls a:hover {
+    background-color: #0779e4;
+}
+
+header h1 {
+    text-align: center;
+    margin: 10px 0;
+    padding: 0;
+    font-size: 2.5em;
+    animation: fadeInDown 1s ease-out;
+}
+
+#live-status-bar {
+    text-align: center;
+    padding: 5px;
+    background-color: #555;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+main {
+    padding: 20px;
+    min-height: 70vh;
+}
+
+footer {
+    background: #333;
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+    margin-top: 20px;
+}
+
+.button {
+    display: inline-block;
+    background: #0779e4;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px; /* Increased roundness */
+    text-decoration: none;
+    font-size: 1em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.button:hover {
+    background: #0567b3;
+    transform: translateY(-2px);
+}
+
+/* Forms */
+form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px; /* Increased roundness */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"],
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px; /* Increased roundness */
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+.form-group .solves-group input {
+    width: calc(20% - 10px); /* Adjust width for 5 inputs side-by-side */
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.form-group .solves-group input:last-child {
+    margin-right: 0;
+}
+
+/* Landing Page Specific */
+#podium {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeInUp 1s ease-out;
+}
+
+#podium h2 {
+    margin-bottom: 20px;
+}
+
+.podium-stands {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.stand {
+    background: #e0e0e0;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 8px 8px 0 0; /* Increased roundness */
+    width: 120px;
+    transition: transform 0.3s ease;
+}
+
+.stand:hover {
+    transform: translateY(-10px);
+}
+
+.stand .rank {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #555;
+}
+
+.stand img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 10px 0;
+    object-fit: cover;
+    border: 2px solid #fff;
+}
+
+.stand .name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stand .result {
+    font-size: 0.9em;
+    color: #555;
+}
+
+.stand.first {
+    height: 200px;
+    background: gold;
+    order: 2;
+}
+
+.stand.second {
+    height: 170px;
+    background: silver;
+    order: 1;
+}
+
+.stand.third {
+    height: 140px;
+    background: #cd7f32; /* Bronze */
+    order: 3;
+}
+
+#leaderboard table {
+    width: 100%;
+    border-collapse: collapse; /* Changed from collapse to separate for border-radius */
+    border-spacing: 0; /* Remove spacing between cells */
+    margin-top: 20px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 8px; /* Added roundness */
+    overflow: hidden; /* Keep contents within rounded corners */
+}
+
+#leaderboard th, #leaderboard td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+#leaderboard th {
+    background-color: #0779e4;
+    color: white;
+}
+
+#leaderboard tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#leaderboard tr:hover {
+    background-color: #ddd;
+}
+
+.competitor-photo {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.competitor-photo-small {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* Admin Page Specific */
+#admin-content section {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px; /* Increased roundness */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#competitor-management ul {
+    list-style: none;
+    padding: 0;
+}
+
+#competitor-management li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+#competitor-management li:last-child {
+    border-bottom: none;
+}
+
+#competitor-management li span {
+    flex-grow: 1;
+    margin-left: 10px;
+}
+
+#competitor-management .button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    font-size: 0.9em;
+}
+
+/* Language Specific (RTL) */
+body[dir="rtl"] {
+    direction: rtl;
+}
+
+body[dir="rtl"] header .top-bar {
+    flex-direction: row-reverse;
+}
+
+body[dir="rtl"] header .controls button,
+body[dir="rtl"] header .controls a {
+    margin-left: 0;
+    margin-right: 10px;
+}
+
+body[dir="rtl"] .form-group .solves-group input {
+    margin-right: 0;
+    margin-left: 10px;
+}
+
+body[dir="rtl"] .form-group .solves-group input:last-child {
+    margin-left: 0;
+}
+
+body[dir="rtl"] #leaderboard th, 
+body[dir="rtl"] #leaderboard td {
+    text-align: right;
+}
+
+body[dir="rtl"] .competitor-photo {
+    margin-right: 0;
+    margin-left: 10px;
+}
+
+body[dir="rtl"] .competitor-photo-small {
+    margin-right: 0;
+    margin-left: 8px;
+}
+
+body[dir="rtl"] #competitor-management li span {
+    margin-left: 0;
+    margin-right: 10px;
+}
+
+body[dir="rtl"] #competitor-management .button {
+    margin-left: 0;
+    margin-right: 10px;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2em;
+    }
+
+    .podium-stands {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .stand {
+        width: 80%;
+        margin-bottom: 10px;
+        order: 0 !important; /* Reset order for column layout */
+        height: auto !important; /* Reset height */
+    }
+
+    .stand.first { background: gold; } /* Reapply colors */
+    .stand.second { background: silver; }
+    .stand.third { background: #cd7f32; }
+
+    #leaderboard table, #leaderboard thead, #leaderboard tbody, #leaderboard th, #leaderboard td, #leaderboard tr {
+        display: block;
+    }
+
+    #leaderboard thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    #leaderboard tr {
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+    }
+
+    #leaderboard td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 50%;
+        text-align: left; /* Ensure text aligns left */
+    }
+    body[dir="rtl"] #leaderboard td {
+        padding-left: 10px; /* Reset padding */
+        padding-right: 50%;
+        text-align: right; /* Ensure text aligns right */
+    }
+
+    #leaderboard td:before {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        content: attr(data-label);
+        font-weight: bold;
+        text-align: left; /* Ensure label aligns left */
+    }
+    body[dir="rtl"] #leaderboard td:before {
+        left: auto;
+        right: 6px;
+        padding-right: 0;
+        padding-left: 10px;
+        text-align: right; /* Ensure label aligns right */
+    }
+
+    .form-group .solves-group input {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+        display: block;
+    }
+    body[dir="rtl"] .form-group .solves-group input {
+        margin-left: 0;
+    }
+
+    header .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    body[dir="rtl"] header .top-bar {
+        align-items: flex-end;
+    }
+
+    header .controls {
+        margin-top: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.8em;
+    }
+
+    .button {
+        font-size: 0.9em;
+        padding: 8px 15px;
+    }
+
+    #leaderboard td {
+        padding-left: 40%;
+    }
+    body[dir="rtl"] #leaderboard td {
+        padding-left: 10px;
+        padding-right: 40%;
+    }
+
+    #leaderboard td:before {
+        width: 35%;
+    }
+    body[dir="rtl"] #leaderboard td:before {
+        width: 35%;
+    }
+}
+
