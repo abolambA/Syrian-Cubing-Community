@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
     const calculatedAo5Span = document.getElementById("calculated-ao5");
     const messageElement = document.getElementById("add-results-msg");
-    const submitButton = form.querySelector("button[type=\'submit\']");
+    const submitButton = form.querySelector("button[type='submit']");
 
     // --- Firebase Refs (from firebase-config.js) ---
     // Assuming firebase, auth, db are initialized globally or imported
@@ -37,10 +37,10 @@ document.addEventListener("DOMContentLoaded", () => {
         competitorName = urlParams.get("name"); // Already decoded by browser
 
         if (competitorName && competitorNameHeading) {
-            competitorNameHeading.textContent = `${getText(\'adding_results_for\')}${competitorName}`;
+            competitorNameHeading.textContent = `${getText('adding_results_for')}${competitorName}`;
         } else if (competitorId) {
-             competitorNameHeading.textContent = `${getText(\'adding_results_for\')} ID: ${competitorId}`;
-             // Optionally fetch name from DB if not in URL
+            competitorNameHeading.textContent = `${getText('adding_results_for')} ID: ${competitorId}`;
+            // Optionally fetch name from DB if not in URL
         } else {
             competitorNameHeading.textContent = "Error: Competitor ID not found in URL.";
             if(form) form.style.display = 'none'; // Hide form if no ID
@@ -57,20 +57,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const validSolves = solves.map(s => parseTime(s)); // Use parseTime from utils.js
 
         // Check if all 5 inputs have some value (even if potentially invalid for now)
-        if (solves.some(s => s === \'\')) {
-            calculatedAo5Span.textContent = getText(\'ao5_calculating\');
+        if (solves.some(s => s === '')) {
+            calculatedAo5Span.textContent = getText('ao5_calculating');
             return;
         }
-        
+
         // Check for invalid formats immediately
         if (validSolves.some(isNaN)) {
-             // Find the first invalid input for a more specific message if desired
-             calculatedAo5Span.textContent = getText(\'invalid_time_format\');
-             calculatedAo5Span.style.color = \'red\';
-             return;
+            // Find the first invalid input for a more specific message if desired
+            calculatedAo5Span.textContent = getText('invalid_time_format');
+            calculatedAo5Span.style.color = 'red';
+            return;
         }
 
-        calculatedAo5Span.style.color = \'inherit\'; // Reset color
+        calculatedAo5Span.style.color = 'inherit'; // Reset color
         const ao5 = calculateAo5(validSolves); // Use calculateAo5 from utils.js
         calculatedAo5Span.textContent = formatTime(ao5); // Use formatTime from utils.js
     }
@@ -90,13 +90,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const parsedSolves = solves.map(s => parseTime(s));
 
         // Validation
-        if (solves.length !== 5 || solves.some(s => s === \'\')) {
-            messageElement.textContent = getText(\'need_5_solves\');
+        if (solves.length !== 5 || solves.some(s => s === '')) {
+            messageElement.textContent = getText('need_5_solves');
             messageElement.style.color = "red";
             return;
         }
         if (parsedSolves.some(isNaN)) {
-            messageElement.textContent = getText(\'invalid_time_format\');
+            messageElement.textContent = getText('invalid_time_format');
             messageElement.style.color = "red";
             return;
         }
@@ -110,39 +110,39 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             // Store results in a subcollection or dedicated results collection
             // Option 1: Subcollection under competitor
-            // const resultRef = db.collection(\'competitors\').doc(competitorId)
-            //                     .collection(\'results\').doc(currentEventId);
+            // const resultRef = db.collection('competitors').doc(competitorId)
+            //                     .collection('results').doc(currentEventId);
 
             // Option 2: Dedicated results collection (often better for querying leaderboards)
-            const resultRef = db.collection(\'results").doc(`${competitorId}_${currentEventId}`);
+            const resultRef = db.collection('results').doc(`${competitorId}_${currentEventId}`);
 
             await resultRef.set({
                 competitorId: competitorId,
                 competitorName: competitorName, // Store name for easier display
                 eventId: currentEventId,
                 solves: solves, // Store original input strings (DNF, times)
-                average: finalAo5 === \'DNF\' ? Infinity : parseFloat(finalAo5), // Store numeric average or Infinity for DNF for sorting
+                average: finalAo5 === 'DNF' ? Infinity : parseFloat(finalAo5), // Store numeric average or Infinity for DNF for sorting
                 submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 // Add admin UID who submitted? auth.currentUser.uid
             }, { merge: true }); // Use merge if you might update results later
 
             console.log("Results added successfully for:", competitorId, "Event:", currentEventId);
-            messageElement.textContent = getText(\'results_added\');
+            messageElement.textContent = getText('results_added');
             messageElement.style.color = "green";
 
             // Clear the form
             form.reset();
-            calculatedAo5Span.textContent = getText(\'ao5_calculating\');
+            calculatedAo5Span.textContent = getText('ao5_calculating');
 
             // Optionally redirect back to admin page after a delay
             setTimeout(() => {
-                window.location.href = \'admin.html\';
-                // messageElement.textContent = \'\'; // Clear message
+                window.location.href = 'admin.html';
+                // messageElement.textContent = ''; // Clear message
             }, 1500);
 
         } catch (error) {
             console.error("Error adding results:", error);
-            messageElement.textContent = `${getText(\'results_add_failed\')} ${error.message}`;
+            messageElement.textContent = `${getText('results_add_failed')} ${error.message}`;
             messageElement.style.color = "red";
         } finally {
             submitButton.disabled = false;
@@ -152,8 +152,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Event Listeners ---
     solveInputs.forEach(input => {
         // Update Ao5 on input change or blur
-        input.addEventListener(\'input\', updateAo5Display);
-        input.addEventListener(\'blur\', updateAo5Display);
+        input.addEventListener('input', updateAo5Display);
+        input.addEventListener('blur', updateAo5Display);
     });
 
     if (form) {
@@ -165,14 +165,14 @@ document.addEventListener("DOMContentLoaded", () => {
         auth.onAuthStateChanged(user => {
             if (!user) {
                 console.log("User not logged in, disabling form...");
-                if(form) form.style.display = \'none\';
+                if(form) form.style.display = 'none';
                 messageElement.textContent = "You must be logged in as an admin to add results.";
                 messageElement.style.color = "red";
             }
             // Add admin role check here if necessary
         });
     } else {
-         if(form) form.style.display = \'none\';
+         if(form) form.style.display = 'none';
          messageElement.textContent = "Firebase Auth not available.";
          messageElement.style.color = "red";
     }
@@ -180,7 +180,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Initial Load ---
     getCompetitorInfoFromURL();
     setLanguage(currentLang); // Apply initial language settings
-    updateAo5Display(); // Initial calculation check (likely shows \'Calculating...\')
+    updateAo5Display(); // Initial calculation check (likely shows 'Calculating...')
 
 });
-
