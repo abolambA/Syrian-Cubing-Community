@@ -12,17 +12,18 @@
 <body>
     <header>
         <div class="top-bar">
-             <div class="controls">
+            <div class="controls">
                 <button id="lang-switch" class="button icon-button"><i class="fas fa-language"></i> <span data-lang="switch_language">English</span></button>
                 <a href="index.html" id="view-leaderboard-link" class="button icon-button"><i class="fas fa-trophy"></i> <span data-lang="view_leaderboard">View Leaderboard</span></a>
                 <!-- Logout button will be added here by JS -->
-            </div>   </div>
+            </div>
         </div>
         <h1 data-lang="admin_panel_title">Admin Panel</h1>
     </header>
 
     <main id="admin-content" style="display: none;"> <!-- Initially hidden, shown after auth -->
-        <section id="status-control            <h3 data-lang="round_status_title"><i class="fas fa-cogs"></i> Round Status Control</h3>
+        <section id="status-control">
+            <h3 data-lang="round_status_title"><i class="fas fa-cogs"></i> Round Status Control</h3>
             <div class="form-group">
                 <label for="status-select" data-lang="current_status_label">Current Status:</label>
                 <select id="status-select">
@@ -37,14 +38,15 @@
 
         <section id="competitor-management">
             <h3 data-lang="competitor_management_title"><i class="fas fa-users"></i> Competitor Management</h3>
-            <button id="add-competitor-btn" class="button icon-button" onclick="window.location.href=\'add_competitor.html\'" data-lang="add_competitor_btn"><i class="fas fa-user-plus"></i> Add New Competitor</button>
+            <button id="add-competitor-btn" class="button icon-button" onclick="window.location.href='add_competitor.html'" data-lang="add_competitor_btn"><i class="fas fa-user-plus"></i> Add New Competitor</button>
             <h4 data-lang="existing_competitors_title">Existing Competitors</h4>
             <ul id="competitor-list">
                 <!-- Competitors will be loaded here by JS -->
-            </ul>or" class="competitor-photo-small"> -->
+                <li>
+                    <img src="img/placeholder.jpg" alt="Competitor" class="competitor-photo-small">
                     <span>Competitor Name</span>
                     <a href="#" class="button add-results-btn" data-competitor-id="COMPETITOR_ID" data-lang="add_results_btn">Add Results</a>
-                     <button class="button delete-competitor-btn" data-competitor-id="COMPETITOR_ID" data-lang="delete_competitor_btn">Delete</button>
+                    <button class="button delete-competitor-btn" data-competitor-id="COMPETITOR_ID" data-lang="delete_competitor_btn">Delete</button>
                 </li>
             </ul>
         </section>
@@ -64,10 +66,6 @@
             <button type="submit" id="login-btn" class="button icon-button" data-lang="login_btn"><i class="fas fa-sign-in-alt"></i> Login</button>
             <p id="login-error" style="color: red; margin-top: 10px;"></p>
         </form>
-        <!-- FirebaseUI removed -->
-        <!-- <div id="firebaseui-auth-container"></div> -->
-        <!-- Google login button removed -->
-        <!-- <button id="login-btn" data-lang="login_btn">Login with Google</button> -->
     </section>
 
     <footer>
@@ -78,11 +76,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <!-- Storage SDK removed -->
-    <!-- FirebaseUI (Optional, for alternative login UI) -->
-    <!-- <script src="https://www.gstatic.com/firebasejs/ui/6.x.x/firebase-ui-auth.js"></script> -->
-    <!-- <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.x.x/firebase-ui-auth.css" /> -->
-
+    
     <script src="js/firebase-config.js"></script>
     <script src="js/admin.js"></script>
     <script src="js/lang.js"></script>
