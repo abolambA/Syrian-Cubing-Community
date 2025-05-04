@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
 
-export function Counter({ label, decrementTitle, initialValue }) {
-  const [count, setCount] = useState(initialValue || 0);
+interface CounterProps {
+  label: string;
+  decrementTitle: string;
+  initialValue?: number;
+}
+
+export function Counter({ label, decrementTitle, initialValue = 0 }: CounterProps) {
+  const [count, setCount] = useState(initialValue);
 
   return (
     <div className="flex flex-col items-center gap-4 bg-white p-6 rounded-lg shadow-md">
