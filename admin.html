@@ -1,84 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-lang="title_admin">Admin Panel - Cubing Competition</title>
-    <link rel="stylesheet" href="css/style.css">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- Add link to Firebase SDK later -->
-</head>
-<body>
-    <header>
-        <div class="top-bar">
-            <div class="controls">
-                <button id="lang-switch" class="button icon-button"><i class="fas fa-language"></i> <span data-lang="switch_language">English</span></button>
-                <a href="index.html" id="view-leaderboard-link" class="button icon-button"><i class="fas fa-trophy"></i> <span data-lang="view_leaderboard">View Leaderboard</span></a>
-                <!-- Logout button will be added here by JS -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login - Speedcubing Competition</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="app-container">
+      <header class="main-header">
+        <div class="container">
+          <div class="header-content">
+            <div class="logo">
+              <i class="fa-solid fa-cube"></i>
+              <h1 data-i18n="adminTitle">Admin Login</h1>
             </div>
+            <div class="header-controls">
+              <div class="language-selector">
+                <button id="lang-en" class="lang-btn active">EN</button>
+                <button id="lang-ar" class="lang-btn">عربي</button>
+              </div>
+              <a href="index.html" class="back-link" data-i18n="backToLeaderboard">
+                <i class="fas fa-arrow-left"></i> Back to Leaderboard
+              </a>
+            </div>
+          </div>
         </div>
-        <h1 data-lang="admin_panel_title">Admin Panel</h1>
-    </header>
+      </header>
 
-    <main id="admin-content" style="display: none;"> <!-- Initially hidden, shown after auth -->
-        <section id="status-control">
-            <h3 data-lang="round_status_title"><i class="fas fa-cogs"></i> Round Status Control</h3>
-            <div class="form-group">
-                <label for="status-select" data-lang="current_status_label">Current Status:</label>
-                <select id="status-select">
-                    <option value="not_started" data-lang="status_not_started">Not Started</option>
-                    <option value="in_progress" data-lang="status_in_progress">In Progress</option>
-                    <option value="finished" data-lang="status_finished">Finished</option>
+      <main class="main-content">
+        <div class="container">
+          <!-- Login Form (visible by default) -->
+          <section id="login-section" class="auth-section">
+            <div class="auth-container">
+              <div class="auth-header">
+                <i class="fas fa-lock"></i>
+                <h2 data-i18n="loginHeader">Admin Login</h2>
+              </div>
+              <form id="login-form" class="auth-form">
+                <div class="form-group">
+                  <label for="login-email" data-i18n="emailLabel">Email</label>
+                  <input
+                    type="email"
+                    id="login-email"
+                    class="form-control"
+                    required
+                    placeholder="admin@example.com"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="login-password" data-i18n="passwordLabel">Password</label>
+                  <input
+                    type="password"
+                    id="login-password"
+                    class="form-control"
+                    required
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary" data-i18n="loginButton">
+                    Login
+                  </button>
+                </div>
+                <div id="login-error" class="error-message"></div>
+              </form>
+            </div>
+          </section>
+
+          <!-- Admin Dashboard (hidden by default) -->
+          <section id="admin-dashboard" class="admin-section hidden">
+            <div class="admin-header">
+              <h2 data-i18n="dashboardTitle">Admin Dashboard</h2>
+              <button id="logout-btn" class="btn btn-outline" data-i18n="logoutButton">
+                Logout
+              </button>
+            </div>
+
+            <div class="admin-controls">
+              <div class="competition-control">
+                <h3 data-i18n="compStatusLabel">Competition Status</h3>
+                <div class="status-buttons">
+                  <button
+                    data-status="not_started"
+                    class="status-btn"
+                    data-i18n="statusNotStarted"
+                  >
+                    Not Started
+                  </button>
+                  <button
+                    data-status="in_progress"
+                    class="status-btn"
+                    data-i18n="statusInProgress"
+                  >
+                    In Progress
+                  </button>
+                  <button data-status="finished" class="status-btn" data-i18n="statusFinished">
+                    Finished
+                  </button>
+                </div>
+              </div>
+
+              <div class="event-control">
+                <h3 data-i18n="eventSelectLabel">Select Event</h3>
+                <select id="admin-event-select">
+                  <option value="3x3" data-i18n="event3x3">3x3 Cube</option>
+                  <option value="2x2" data-i18n="event2x2">2x2 Cube</option>
+                  <option value="pyraminx" data-i18n="eventPyraminx">Pyraminx</option>
                 </select>
-                <button id="update-status-btn" class="button icon-button" data-lang="update_status_btn"><i class="fas fa-save"></i> Update Status</button>
-                <span id="status-update-msg"></span>
+              </div>
             </div>
-        </section>
 
-        <section id="competitor-management">
-            <h3 data-lang="competitor_management_title"><i class="fas fa-users"></i> Competitor Management</h3>
-            <button id="add-competitor-btn" class="button icon-button" onclick="window.location.href='add_competitor.html'" data-lang="add_competitor_btn"><i class="fas fa-user-plus"></i> Add New Competitor</button>
-            <h4 data-lang="existing_competitors_title">Existing Competitors</h4>
-            <ul id="competitor-list">
-                <!-- Competitors will be loaded here by JS -->
-                <li>
-                    <img src="img/placeholder.jpg" alt="Competitor" class="competitor-photo-small">
-                    <span>Competitor Name</span>
-                    <a href="#" class="button add-results-btn" data-competitor-id="COMPETITOR_ID" data-lang="add_results_btn">Add Results</a>
-                    <button class="button delete-competitor-btn" data-competitor-id="COMPETITOR_ID" data-lang="delete_competitor_btn">Delete</button>
-                </li>
-            </ul>
-        </section>
-    </main>
-
-    <section id="admin-login" style="text-align: center; padding: 50px;">
-        <h2 data-lang="admin_login_prompt">Admin Login Required</h2>
-        <form id="login-form" style="max-width: 400px; margin: auto;">
-            <div class="form-group">
-                <label for="admin-email" style="display: block; text-align: left; margin-bottom: 5px;"><i class="fas fa-envelope"></i> Email:</label>
-                <input type="email" id="admin-email" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box;">
+            <div class="admin-tabs">
+              <button class="tab-btn active" data-tab="competitors" data-i18n="competitorsTab">
+                Competitors
+              </button>
+              <button class="tab-btn" data-tab="results" data-i18n="resultsTab">Results</button>
             </div>
-            <div class="form-group">
-                <label for="admin-password" style="display: block; text-align: left; margin-bottom: 5px;"><i class="fas fa-lock"></i> Password:</label>
-                <input type="password" id="admin-password" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box;">
-            </div>
-            <button type="submit" id="login-btn" class="button icon-button" data-lang="login_btn"><i class="fas fa-sign-in-alt"></i> Login</button>
-            <p id="login-error" style="color: red; margin-top: 10px;"></p>
-        </form>
-    </section>
 
-    <footer>
-        <p data-lang="footer_text">&copy; 2025 Cubing Competition</p>
-    </footer>
+            <div class="tab-content">
+              <!-- Competitors Tab -->
+              <div id="competitors-tab" class="tab-pane active">
+                <div class="competitors-actions">
+                  <h3 data-i18n="competitorsHeader">Competitors</h3>
+                  <button
+                    id="add-competitor-btn"
+                    class="btn btn-primary"
+                    data-i18n="addCompetitorBtn"
+                  >
+                    <i class="fas fa-plus"></i> Add Competitor
+                  </button>
+                </div>
+
+                <div class="competitors-list-container">
+                  <table class="competitors-table">
+                    <thead>
+                      <tr>
+                        <th data-i18n="competitorIdHeader">ID</th>
+                        <th data-i18n="competitorNameHeader">Name</th>
+                        <th data-i18n="actionsHeader">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="competitors-list"></tbody>
+                  </table>
+                  <div id="competitors-empty" class="empty-state" data-i18n="noCompetitorsMsg">
+                    No competitors added yet
+                  </div>
+                </div>
+
+                <!-- Add Competitor Form -->
+                <div id="add-competitor-form" class="modal hidden">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h3 data-i18n="addCompetitorTitle">Add New Competitor</h3>
+                      <button class="close-modal">&times;</button>
+                    </div>
+                    <form id="competitor-form">
+                      <div class="form-group">
+                        <label for="competitor-name" data-i18n="competitorNameLabel">
+                          Competitor Name
+                        </label>
+                        <input
+                          type="text"
+                          id="competitor-name"
+                          class="form-control"
+                          required
+                          data-i18n-placeholder="competitorNamePlaceholder"
+                          placeholder="Enter competitor name"
+                        />
+                      </div>
+                      <div class="form-actions">
+                        <button type="button" class="btn btn-outline cancel-modal" data-i18n="cancelButton">
+                          Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary" data-i18n="saveButton">
+                          Save
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Results Tab -->
+              <div id="results-tab" class="tab-pane">
+                <div class="results-header">
+                  <h3 data-i18n="addResultsHeader">Add Results</h3>
+                </div>
+                <form id="results-form" class="results-form">
+                  <div class="form-group">
+                    <label for="results-competitor" data-i18n="selectCompetitorLabel">
+                      Select Competitor
+                    </label>
+                    <select id="results-competitor" class="form-control" required>
+                      <option value="" data-i18n="selectCompetitorPlaceholder">
+                        -- Select Competitor --
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="solves-container">
+                    <h4 data-i18n="solvesLabel">Solve Times</h4>
+                    <p class="help-text" data-i18n="solvesHelpText">
+                      Enter times in seconds (e.g., 12.34) or DNF for Did Not Finish
+                    </p>
+                    <div class="solves-inputs">
+                      <div class="form-group">
+                        <label for="solve1" data-i18n="solve1Label">Solve 1</label>
+                        <input
+                          type="text"
+                          id="solve1"
+                          class="form-control solve-input"
+                          required
+                          pattern="^(DNF|[0-9]*\.?[0-9]+)$"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label for="solve2" data-i18n="solve2Label">Solve 2</label>
+                        <input
+                          type="text"
+                          id="solve2"
+                          class="form-control solve-input"
+                          required
+                          pattern="^(DNF|[0-9]*\.?[0-9]+)$"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label for="solve3" data-i18n="solve3Label">Solve 3</label>
+                        <input
+                          type="text"
+                          id="solve3"
+                          class="form-control solve-input"
+                          required
+                          pattern="^(DNF|[0-9]*\.?[0-9]+)$"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label for="solve4" data-i18n="solve4Label">Solve 4</label>
+                        <input
+                          type="text"
+                          id="solve4"
+                          class="form-control solve-input"
+                          required
+                          pattern="^(DNF|[0-9]*\.?[0-9]+)$"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label for="solve5" data-i18n="solve5Label">Solve 5</label>
+                        <input
+                          type="text"
+                          id="solve5"
+                          class="form-control solve-input"
+                          required
+                          pattern="^(DNF|[0-9]*\.?[0-9]+)$"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="average-result">
+                    <div class="average-label" data-i18n="calculatedAverageLabel">
+                      Calculated Average (Ao5):
+                    </div>
+                    <div id="calculated-average" class="average-value">-</div>
+                    <div class="average-info" data-i18n="averageInfoText">
+                      The average is calculated by removing the fastest and slowest times, then
+                      averaging the remaining 3 times.
+                    </div>
+                  </div>
+
+                  <div class="form-actions">
+                    <button type="reset" class="btn btn-outline" data-i18n="resetButton">
+                      Reset
+                    </button>
+                    <button type="submit" class="btn btn-primary" data-i18n="saveResultsButton">
+                      Save Results
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer class="main-footer">
+        <div class="container">
+          <p data-i18n="footerText">© Syrian Cubing Community</p>
+        </div>
+      </footer>
+    </div>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <!-- Application Scripts -->
     <script src="js/firebase-config.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/utils.js"></script>
     <script src="js/admin.js"></script>
-    <script src="js/lang.js"></script>
-</body>
+  </body>
 </html>

@@ -1,97 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-lang="title_landing">Cubing Competition Leaderboard</title>
-    <link rel="stylesheet" href="css/style.css">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- Add link to Firebase SDK later -->
-</head>
-<body>
-    <header>
-        <div class="top-bar">
-            <div class="event-selector">
-                <label for="event-select"><i class="fas fa-calendar-alt"></i> <span data-lang="select_event">Event:</span></label>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speedcubing Competition Leaderboard</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="app-container">
+      <header class="main-header">
+        <div class="container">
+          <div class="header-content">
+            <div class="logo">
+              <i class="fa-solid fa-cube"></i>
+              <h1 data-i18n="appTitle">Syria Speedcubing Open 2025 Leaderboard</h1>
+            </div>
+            <div class="header-controls">
+              <div class="language-selector">
+                <button id="lang-en" class="lang-btn active">EN</button>
+                <button id="lang-ar" class="lang-btn">عربي</button>
+              </div>
+              <div class="event-selector">
                 <select id="event-select">
-                    <!-- Event options will be populated by JS -->
-                    <option value="3x3" data-lang="event_3x3">3x3 Cube</option>
-                    <!-- Add more events as needed -->
+                  <option value="3x3" data-i18n="event3x3">3x3 Cube</option>
+                  <option value="2x2" data-i18n="event2x2">2x2 Cube</option>
+                  <option value="pyraminx" data-i18n="eventPyraminx">Pyraminx</option>
                 </select>
+              </div>
+              <a href="admin.html" class="admin-link" data-i18n="adminLink">Admin Login</a>
             </div>
-            <div class="controls">
-                <button id="lang-switch" class="button icon-button"><i class="fas fa-language"></i> <span data-lang="switch_language">العربية</span></button>
-                <a href="admin.html" id="admin-link" class="button icon-button"><i class="fas fa-user-shield"></i> <span data-lang="admin_login">Admin Login</span></a>
-            </div>
+          </div>
         </div>
-        <h1 data-lang="main_title">Competition Leaderboard</h1>
-        <div id="live-status-bar" data-lang="status_loading">Status: Loading...</div>
-    </header>
+      </header>
 
-    <main>
-        <section id="podium">
-            <h2 data-lang="podium_title">Podium</h2>
-            <div class="podium-stands">
-                <div class="stand second">
-                    <div class="rank">2</div>
-                    <!-- <img src="img/default_avatar.png" alt="2nd Place Competitor" id="podium-2-img"> -->
-                    <div class="name" id="podium-2-name">-</div>
-                    <div class="result" id="podium-2-avg">-</div>
-                </div>
-                <div class="stand first">
-                    <div class="rank">1</div>
-                    <!-- <img src="img/default_avatar.png" alt="1st Place Competitor" id="podium-1-img"> -->
-                    <div class="name" id="podium-1-name">-</div>
-                    <div class="result" id="podium-1-avg">-</div>
-                </div>
-                <div class="stand third">
-                    <div class="rank">3</div>
-                    <!-- <img src="img/default_avatar.png" alt="3rd Place Competitor" id="podium-3-img"> -->
-                    <div class="name" id="podium-3-name">-</div>
-                    <div class="result" id="podium-3-avg">-</div>
-                </div>
+      <main class="main-content">
+        <div class="container">
+          <div class="status-bar">
+            <div class="competition-status">
+              <span class="status-label" data-i18n="statusLabel">Status:</span>
+              <span id="comp-status" class="status-value">-</span>
             </div>
-        </section>
+          </div>
 
-        <section id="leaderboard">
-            <h2 data-lang="leaderboard_title">Full Leaderboard</h2>
-            <table>
+          <section class="podium-section">
+            <h2 class="section-title" data-i18n="podiumTitle">Podium</h2>
+            <div class="podium-container" id="podium-container">
+              <!-- Podium content will be generated via JS -->
+              <div class="podium-placeholder" data-i18n="podiumEmpty">
+                No results available yet
+              </div>
+            </div>
+          </section>
+
+          <section class="leaderboard-section">
+            <h2 class="section-title" data-i18n="leaderboardTitle">Leaderboard</h2>
+            <div class="leaderboard-container">
+              <table class="leaderboard-table">
                 <thead>
-                    <tr>
-                        <th data-lang="rank">Rank</th>
-                        <th data-lang="name">Name</th>
-                        <th data-lang="average">Average</th>
-                        <th data-lang="solves">Solves</th>
-                    </tr>
+                  <tr>
+                    <th data-i18n="rankHeader">Rank</th>
+                    <th data-i18n="nameHeader">Name</th>
+                    <th data-i18n="averageHeader">Average (Ao5)</th>
+                    <th data-i18n="solvesHeader">Solves</th>
+                  </tr>
                 </thead>
                 <tbody id="leaderboard-body">
-                    <!-- Leaderboard rows will be populated by JS -->
-                    <!-- Example Row (remove later): -->
-                    <tr>
-                        <td>1</td>
-                        <td>
-                            <!-- <img src="img/default_avatar.png" alt="Competitor" class="competitor-photo"> -->
-                            <span>Competitor Name</span>
-                        </td>
-                        <td>9.87</td>
-                        <td>(DNF), 9.50, 10.12, 9.99, 8.50</td>
-                    </tr>
+                  <!-- Leaderboard content will be generated via JS -->
                 </tbody>
-            </table>
-        </section>
-    </main>
+              </table>
+              <div id="leaderboard-empty" class="empty-state" data-i18n="leaderboardEmpty">
+                No results available yet
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
 
-    <footer>
-        <p data-lang="footer_text">&copy; 2025 Cubing Competition</p>
-    </footer>
+      <footer class="main-footer">
+        <div class="container">
+          <p data-i18n="footerText">© Syrian Speedcubing Community</p>
+        </div>
+      </footer>
+    </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <!-- Storage SDK removed -->
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <!-- Application Scripts -->
     <script src="js/firebase-config.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/utils.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/lang.js"></script>
-</body>
+    <script src="js/leaderboard.js"></script>
+  </body>
 </html>

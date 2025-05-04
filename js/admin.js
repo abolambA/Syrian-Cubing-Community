@@ -1,227 +1,580 @@
-// Logic for the Admin Panel (admin.html)
+/**
+ * Admin functionality for managing the speedcubing competition
+ */
 
+// DOM element references
+const loginSection = document.getElementById('login-section');
+const adminDashboard = document.getElementById('admin-dashboard');
+const loginForm = document.getElementById('login-form');
+const loginError = document.getElementById('login-error');
+const logoutBtn = document.getElementById('logout-btn');
+const statusButtons = document.querySelectorAll('.status-btn');
+const adminEventSelect = document.getElementById('admin-event-select');
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabPanes = document.querySelectorAll('.tab-pane');
+const competitorsList = document.getElementById('competitors-list');
+const competitorsEmpty = document.getElementById('competitors-empty');
+const addCompetitorBtn = document.getElementById('add-competitor-btn');
+const addCompetitorModal = document.getElementById('add-competitor-form');
+const competitorForm = document.getElementById('competitor-form');
+const resultsForm = document.getElementById('results-form');
+const resultsCompetitorSelect = document.getElementById('results-competitor');
+const solveInputs = document.querySelectorAll('.solve-input');
+const calculatedAverage = document.getElementById('calculated-average');
+
+// Current state
+let currentUser = null;
+let currentCompetitors = [];
+let currentEvent = '3x3';
+
+// Initialize the admin page
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Admin JS loaded.");
-
-    // --- DOM Elements ---
-    const adminContent = document.getElementById("admin-content");
-    const adminLoginSection = document.getElementById("admin-login");
-    const loginForm = document.getElementById("login-form");
-    const emailInput = document.getElementById("admin-email");
-    const passwordInput = document.getElementById("admin-password");
-    const loginError = document.getElementById("login-error");
-    const statusSelect = document.getElementById("status-select");
-    const updateStatusBtn = document.getElementById("update-status-btn");
-    const statusUpdateMsg = document.getElementById("status-update-msg");
-    const competitorList = document.getElementById("competitor-list");
-    const viewLeaderboardLink = document.getElementById("view-leaderboard-link");
-    const controlsDiv = viewLeaderboardLink ? viewLeaderboardLink.parentElement : null;
-
-    // --- Functions ---
-
-    function showAdminContent() {
-        if (adminLoginSection) adminLoginSection.style.display = 'none';
-        if (adminContent) adminContent.style.display = 'block';
-        addLogoutButton();
-        fetchCurrentStatus();
-        fetchCompetitors();
-    }
-
-    function showLoginPrompt() {
-        if (adminContent) adminContent.style.display = 'none';
-        if (adminLoginSection) adminLoginSection.style.display = 'block';
-        removeLogoutButton();
-    }
-
-    function addLogoutButton() {
-        if (!controlsDiv || document.getElementById('logout-btn')) return;
-        const logoutButton = document.createElement('button');
-        logoutButton.id = 'logout-btn';
-        logoutButton.textContent = getText('logout_btn');
-        logoutButton.setAttribute('data-lang', 'logout_btn');
-        logoutButton.addEventListener('click', handleLogout);
-        controlsDiv.appendChild(logoutButton);
-    }
-
-    function removeLogoutButton() {
-        const logoutButton = document.getElementById('logout-btn');
-        if (logoutButton) {
-            logoutButton.remove();
-        }
-    }
-
-    async function handleLogin(event) {
-        event.preventDefault();
-        if (!auth || !emailInput || !passwordInput || !loginError) {
-            console.error("Firebase Auth or form elements not initialized.");
-            if (loginError) loginError.textContent = "Login form error.";
-            return;
-        }
-
-        const email = emailInput.value;
-        const password = passwordInput.value;
-
-        try {
-            loginError.textContent = "Logging in...";
-            loginError.style.color = "orange";
-            await auth.signInWithEmailAndPassword(email, password);
-            console.log("Login successful, auth state change should trigger UI update.");
-            loginError.textContent = "";
-        } catch (error) {
-            console.error("Login failed:", error);
-            let errorMessage = getText("login_failed");
-            if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
-                errorMessage = getText("invalid_credentials");
-            } else if (error.code === "auth/invalid-email") {
-                errorMessage = getText("invalid_email_format");
-            }
-            loginError.textContent = `${errorMessage} (${error.code})`;
-            loginError.style.color = "red";
-        }
-    }
-
-    async function handleLogout() {
-        if (!auth) return;
-        try {
-            await auth.signOut();
-            console.log("Logout successful.");
-        } catch (error) {
-            console.error("Logout failed:", error);
-        }
-    }
-
-    async function fetchCurrentStatus() {
-        if (!db || !statusSelect) return;
-        try {
-            const docRef = db.collection('competition').doc('status');
-            const docSnap = await docRef.get();
-            if (docSnap.exists) {
-                const statusData = docSnap.data();
-                statusSelect.value = statusData.currentStatus || 'not_started';
-            } else {
-                console.log("Status document doesn't exist, defaulting to 'not_started'.");
-                statusSelect.value = 'not_started';
-            }
-        } catch (error) {
-            console.error("Error fetching status:", error);
-            if (statusUpdateMsg) {
-                statusUpdateMsg.textContent = getText('status_update_failed');
-                statusUpdateMsg.style.color = 'red';
-            }
-        }
-    }
-
-    async function updateStatus() {
-        if (!db || !statusSelect || !updateStatusBtn) return;
-        const newStatus = statusSelect.value;
-        updateStatusBtn.disabled = true;
-        if (statusUpdateMsg) {
-            statusUpdateMsg.textContent = 'Updating...';
-            statusUpdateMsg.style.color = 'orange';
-        }
-
-        try {
-            const docRef = db.collection('competition').doc('status');
-            await docRef.set({ currentStatus: newStatus }, { merge: true });
-            if (statusUpdateMsg) {
-                statusUpdateMsg.textContent = getText('status_updated');
-                statusUpdateMsg.style.color = 'green';
-            }
-            console.log("Status updated to:", newStatus);
-        } catch (error) {
-            console.error("Error updating status:", error);
-            if (statusUpdateMsg) {
-                statusUpdateMsg.textContent = getText('status_update_failed');
-                statusUpdateMsg.style.color = 'red';
-            }
-        }
-        updateStatusBtn.disabled = false;
-        setTimeout(() => {
-            if (statusUpdateMsg) statusUpdateMsg.textContent = '';
-        }, 3000);
-    }
-
-    async function fetchCompetitors() {
-        if (!db || !competitorList) return;
-        competitorList.innerHTML = `<li>${getText('fetching_data')}</li>`;
-        try {
-            const snapshot = await db.collection('competitors').orderBy('name').get();
-            if (snapshot.empty) {
-                competitorList.innerHTML = `<li>${getText('no_competitors')}</li>`;
-                return;
-            }
-            competitorList.innerHTML = '';
-            snapshot.forEach(doc => {
-                const competitor = doc.data();
-                const competitorId = doc.id;
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `
-                    <span><i class="fas fa-user"></i> ${competitor.name}</span>
-                    <a href="add_results.html?competitorId=${competitorId}&name=${encodeURIComponent(competitor.name)}" class="button icon-button add-results-btn" data-lang="add_results_btn"><i class="fas fa-stopwatch"></i> ${getText("add_results_btn")}</a>
-                    <button class="button icon-button delete-competitor-btn" data-competitor-id="${competitorId}" data-lang="delete_competitor_btn"><i class="fas fa-trash-alt"></i> ${getText("delete_competitor_btn")}</button>
-                `;
-                competitorList.appendChild(listItem);
-            });
-
-            addDeleteButtonListeners();
-
-        } catch (error) {
-            console.error("Error fetching competitors:", error);
-            competitorList.innerHTML = `<li>Error loading competitors.</li>`;
-        }
-    }
-
-    function addDeleteButtonListeners() {
-        document.querySelectorAll('.delete-competitor-btn').forEach(button => {
-            button.addEventListener('click', handleDeleteCompetitor);
-        });
-    }
-
-    async function handleDeleteCompetitor(event) {
-        const button = event.target.closest('button');
-        const competitorId = button.getAttribute('data-competitor-id');
-        if (!competitorId || !db) return;
-
-        if (confirm(getText('confirm_delete'))) {
-            button.disabled = true;
-            button.textContent = 'Deleting...';
-            try {
-                await db.collection('competitors').doc(competitorId).delete();
-                console.log("Competitor deleted:", competitorId);
-                button.closest('li').remove();
-                alert(getText('competitor_deleted'));
-            } catch (error) {
-                console.error("Error deleting competitor:", error);
-                alert(getText('competitor_delete_failed'));
-                button.disabled = false;
-                button.textContent = getText('delete_competitor_btn');
-            }
-        }
-    }
-
-    if (loginForm) {
-        loginForm.addEventListener("submit", handleLogin);
-    }
-
-    if (updateStatusBtn) {
-        updateStatusBtn.addEventListener('click', updateStatus);
-    }
-
-    if (auth) {
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                console.log("User is signed in:", user.uid);
-                showAdminContent();
-            } else {
-                console.log("User is signed out.");
-                showLoginPrompt();
-            }
-        });
-    } else {
-        console.error("Firebase Auth is not available. Cannot set up auth listener.");
-        showLoginPrompt();
-        if (loginError) loginError.textContent = 'Firebase Auth failed to initialize.';
-    }
-
-    setLanguage(currentLang);
+  // Check authentication state
+  firebase.auth().onAuthStateChanged(handleAuthStateChanged);
+  
+  // Add event listeners
+  loginForm.addEventListener('submit', handleLogin);
+  logoutBtn.addEventListener('click', handleLogout);
+  
+  // Status buttons
+  statusButtons.forEach(button => {
+    button.addEventListener('click', () => updateCompetitionStatus(button.dataset.status));
+  });
+  
+  // Event selector
+  adminEventSelect.addEventListener('change', handleEventChange);
+  
+  // Tab navigation
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => switchTab(button.dataset.tab));
+  });
+  
+  // Competitor management
+  addCompetitorBtn.addEventListener('click', showAddCompetitorModal);
+  competitorForm.addEventListener('submit', handleAddCompetitor);
+  document.querySelectorAll('.close-modal, .cancel-modal').forEach(el => {
+    el.addEventListener('click', hideAddCompetitorModal);
+  });
+  
+  // Results management
+  resultsForm.addEventListener('submit', handleSaveResults);
+  solveInputs.forEach(input => {
+    input.addEventListener('input', updateCalculatedAverage);
+  });
+  resultsForm.addEventListener('reset', () => {
+    setTimeout(() => {
+      calculatedAverage.textContent = '-';
+    }, 0);
+  });
 });
+
+// Handle authentication state changes
+function handleAuthStateChanged(user) {
+  currentUser = user;
+  
+  if (user) {
+    // User is signed in
+    showAdminDashboard();
+    loadCompetitionStatus();
+    loadCompetitors();
+  } else {
+    // User is signed out
+    showLoginForm();
+  }
+}
+
+// Handle login form submission
+async function handleLogin(e) {
+  e.preventDefault();
+  
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  
+  // Clear previous errors
+  loginError.textContent = '';
+  
+  try {
+    // Show loading state
+    const submitBtn = loginForm.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    
+    // Create loading spinner
+    const spinner = utils.createLoadingSpinner();
+    submitBtn.textContent = '';
+    submitBtn.appendChild(spinner);
+    
+    // Attempt login
+    await firebase.auth().signInWithEmailAndPassword(email, password);
+    
+    // Success - the auth state change will trigger UI update
+    utils.showNotification(i18n.translate('loginSuccess'), 'success');
+    
+  } catch (error) {
+    console.error('Login error:', error);
+    loginError.textContent = i18n.translate('loginError');
+    
+    // Reset button
+    const submitBtn = loginForm.querySelector('button[type="submit"]');
+    submitBtn.textContent = i18n.translate('loginButton');
+    submitBtn.disabled = false;
+  }
+}
+
+// Handle logout button click
+async function handleLogout() {
+  try {
+    await firebase.auth().signOut();
+    utils.showNotification(i18n.translate('logoutSuccess'), 'success');
+  } catch (error) {
+    console.error('Logout error:', error);
+    utils.showNotification('Error signing out', 'error');
+  }
+}
+
+// Show login form
+function showLoginForm() {
+  loginSection.classList.remove('hidden');
+  adminDashboard.classList.add('hidden');
+  
+  // Reset the login form
+  loginForm.reset();
+  loginError.textContent = '';
+}
+
+// Show admin dashboard
+function showAdminDashboard() {
+  loginSection.classList.add('hidden');
+  adminDashboard.classList.remove('hidden');
+}
+
+// Switch between tabs
+function switchTab(tabId) {
+  // Update tab buttons
+  tabButtons.forEach(button => {
+    if (button.dataset.tab === tabId) {
+      button.classList.add('active');
+    } else {
+      button.classList.remove('active');
+    }
+  });
+  
+  // Update tab panes
+  tabPanes.forEach(pane => {
+    if (pane.id === `${tabId}-tab`) {
+      pane.classList.add('active');
+    } else {
+      pane.classList.remove('active');
+    }
+  });
+}
+
+// Load competition status
+async function loadCompetitionStatus() {
+  try {
+    const statusDoc = await statusRef.doc('current').get();
+    
+    if (statusDoc.exists) {
+      const statusData = statusDoc.data();
+      
+      // Update status buttons
+      updateStatusButtons(statusData.status);
+      
+      // Update event selector
+      if (statusData.currentEvent) {
+        currentEvent = statusData.currentEvent;
+        adminEventSelect.value = currentEvent;
+      }
+    }
+  } catch (error) {
+    console.error('Error loading competition status:', error);
+    utils.showNotification('Error loading competition status', 'error');
+  }
+}
+
+// Update competition status
+async function updateCompetitionStatus(status) {
+  if (!currentUser) return;
+  
+  try {
+    await statusRef.doc('current').update({
+      status: status,
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    // Update UI
+    updateStatusButtons(status);
+    
+    utils.showNotification(i18n.translate('statusUpdated'), 'success');
+  } catch (error) {
+    console.error('Error updating competition status:', error);
+    utils.showNotification('Error updating status', 'error');
+  }
+}
+
+// Update status button states
+function updateStatusButtons(status) {
+  statusButtons.forEach(button => {
+    if (button.dataset.status === status) {
+      button.classList.add('active');
+    } else {
+      button.classList.remove('active');
+    }
+  });
+}
+
+// Handle event change
+async function handleEventChange() {
+  if (!currentUser) return;
+  
+  const newEvent = adminEventSelect.value;
+  currentEvent = newEvent;
+  
+  try {
+    // Update the current event in the status document
+    await statusRef.doc('current').update({
+      currentEvent: newEvent,
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    // Update competitors dropdown in results form
+    populateCompetitorDropdown();
+    
+  } catch (error) {
+    console.error('Error updating current event:', error);
+    utils.showNotification('Error updating event', 'error');
+  }
+}
+
+// Load competitors
+async function loadCompetitors() {
+  try {
+    // Show loading state
+    competitorsList.innerHTML = '';
+    const loadingRow = document.createElement('tr');
+    loadingRow.innerHTML = `
+      <td colspan="3" class="loading-text">
+        <div class="loading-spinner"></div>
+        <span>${i18n.translate('loading') || 'Loading...'}</span>
+      </td>
+    `;
+    competitorsList.appendChild(loadingRow);
+    competitorsEmpty.classList.add('hidden');
+    
+    // Get competitors from Firestore
+    const snapshot = await competitorsRef.get();
+    
+    // Remove loading state
+    competitorsList.innerHTML = '';
+    
+    if (snapshot.empty) {
+      competitorsEmpty.classList.remove('hidden');
+    } else {
+      competitorsEmpty.classList.add('hidden');
+      
+      // Create the competitors array
+      currentCompetitors = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      // Sort by name
+      currentCompetitors.sort((a, b) => a.name.localeCompare(b.name));
+      
+      // Create rows for each competitor
+      currentCompetitors.forEach(competitor => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${competitor.id.substring(0, 8)}</td>
+          <td>${competitor.name}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn btn-outline btn-icon delete-competitor" data-id="${competitor.id}" title="${i18n.translate('deleteButton')}">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        
+        // Add to the list
+        competitorsList.appendChild(row);
+      });
+      
+      // Add event listeners to delete buttons
+      document.querySelectorAll('.delete-competitor').forEach(button => {
+        button.addEventListener('click', () => confirmDeleteCompetitor(button.dataset.id));
+      });
+      
+      // Update the competitors dropdown in the results form
+      populateCompetitorDropdown();
+    }
+  } catch (error) {
+    console.error('Error loading competitors:', error);
+    utils.showNotification('Error loading competitors', 'error');
+    competitorsList.innerHTML = '';
+    competitorsEmpty.classList.remove('hidden');
+    competitorsEmpty.textContent = 'Error loading competitors';
+  }
+}
+
+// Show the add competitor modal
+function showAddCompetitorModal() {
+  addCompetitorModal.classList.remove('hidden');
+  addCompetitorModal.classList.add('show');
+  
+  // Focus the name input
+  setTimeout(() => {
+    document.getElementById('competitor-name').focus();
+  }, 300);
+  
+  // Reset the form
+  competitorForm.reset();
+}
+
+// Hide the add competitor modal
+function hideAddCompetitorModal() {
+  addCompetitorModal.classList.remove('show');
+  setTimeout(() => {
+    addCompetitorModal.classList.add('hidden');
+  }, 300);
+}
+
+// Handle adding a new competitor
+async function handleAddCompetitor(e) {
+  e.preventDefault();
+  
+  if (!currentUser) return;
+  
+  const competitorName = document.getElementById('competitor-name').value.trim();
+  
+  if (!competitorName) return;
+  
+  try {
+    // Show loading state
+    const submitBtn = competitorForm.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    
+    // Create loading spinner
+    const spinner = utils.createLoadingSpinner();
+    submitBtn.textContent = '';
+    submitBtn.appendChild(spinner);
+    
+    // Add to Firestore
+    await competitorsRef.add({
+      name: competitorName,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    // Success
+    utils.showNotification(i18n.translate('competitorAdded'), 'success');
+    
+    // Hide modal and refresh list
+    hideAddCompetitorModal();
+    loadCompetitors();
+    
+    // Reset form and button
+    competitorForm.reset();
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
+    
+  } catch (error) {
+    console.error('Error adding competitor:', error);
+    utils.showNotification('Error adding competitor', 'error');
+    
+    // Reset button
+    const submitBtn = competitorForm.querySelector('button[type="submit"]');
+    submitBtn.textContent = i18n.translate('saveButton');
+    submitBtn.disabled = false;
+  }
+}
+
+// Confirm before deleting a competitor
+function confirmDeleteCompetitor(competitorId) {
+  const competitor = currentCompetitors.find(c => c.id === competitorId);
+  if (!competitor) return;
+  
+  const message = i18n.translate('deleteConfirmation');
+  
+  utils.showConfirmDialog(message, () => {
+    deleteCompetitor(competitorId);
+  });
+}
+
+// Delete a competitor
+async function deleteCompetitor(competitorId) {
+  if (!currentUser) return;
+  
+  try {
+    // Delete the competitor
+    await competitorsRef.doc(competitorId).delete();
+    
+    // Also delete their results
+    const resultsSnapshot = await resultsRef.where('competitorId', '==', competitorId).get();
+    
+    // Batch delete all results
+    const batch = db.batch();
+    resultsSnapshot.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+    
+    await batch.commit();
+    
+    // Success
+    utils.showNotification(i18n.translate('competitorDeleted'), 'success');
+    
+    // Refresh the list
+    loadCompetitors();
+    
+  } catch (error) {
+    console.error('Error deleting competitor:', error);
+    utils.showNotification('Error deleting competitor', 'error');
+  }
+}
+
+// Populate the competitor dropdown in the results form
+function populateCompetitorDropdown() {
+  // Clear existing options except the placeholder
+  const placeholderOption = resultsCompetitorSelect.querySelector('option[value=""]');
+  resultsCompetitorSelect.innerHTML = '';
+  
+  if (placeholderOption) {
+    resultsCompetitorSelect.appendChild(placeholderOption);
+  }
+  
+  // Add competitors to dropdown
+  if (currentCompetitors.length > 0) {
+    currentCompetitors.forEach(competitor => {
+      const option = document.createElement('option');
+      option.value = competitor.id;
+      option.textContent = competitor.name;
+      resultsCompetitorSelect.appendChild(option);
+    });
+  }
+}
+
+// Update calculated average based on current solve inputs
+function updateCalculatedAverage() {
+  const solves = [];
+  
+  // Get values from all solve inputs
+  solveInputs.forEach(input => {
+    const value = input.value.trim();
+    if (value) {
+      if (value.toUpperCase() === 'DNF') {
+        solves.push('DNF');
+      } else if (utils.isValidTime(value)) {
+        solves.push(value);
+      }
+    }
+  });
+  
+  // Calculate average if we have 5 solves
+  if (solves.length === 5) {
+    const average = utils.calculateAverageOf5(solves);
+    calculatedAverage.textContent = average === 'DNF' ? 'DNF' : utils.formatTime(average);
+  } else {
+    calculatedAverage.textContent = '-';
+  }
+}
+
+// Handle saving results
+async function handleSaveResults(e) {
+  e.preventDefault();
+  
+  if (!currentUser) return;
+  
+  const competitorId = resultsCompetitorSelect.value;
+  if (!competitorId) {
+    utils.showNotification('Please select a competitor', 'warning');
+    return;
+  }
+  
+  // Get solve times
+  const solves = [];
+  let isValid = true;
+  
+  solveInputs.forEach(input => {
+    const value = input.value.trim();
+    
+    if (!value) {
+      isValid = false;
+      input.classList.add('error');
+      return;
+    }
+    
+    if (value.toUpperCase() === 'DNF') {
+      solves.push('DNF');
+    } else if (utils.isValidTime(value)) {
+      solves.push(value);
+    } else {
+      isValid = false;
+      input.classList.add('error');
+    }
+  });
+  
+  if (!isValid || solves.length !== 5) {
+    utils.showNotification('Please enter valid times for all solves', 'warning');
+    return;
+  }
+  
+  // Calculate average
+  const average = utils.calculateAverageOf5(solves);
+  
+  try {
+    // Show loading state
+    const submitBtn = resultsForm.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    
+    // Create loading spinner
+    const spinner = utils.createLoadingSpinner();
+    submitBtn.textContent = '';
+    submitBtn.appendChild(spinner);
+    
+    // Check if results already exist for this competitor and event
+    const existingResultsQuery = await resultsRef
+      .where('competitorId', '==', competitorId)
+      .where('event', '==', currentEvent)
+      .get();
+    
+    if (!existingResultsQuery.empty) {
+      // Update existing result
+      const existingResultDoc = existingResultsQuery.docs[0];
+      await existingResultDoc.ref.update({
+        solves: solves,
+        average: average,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } else {
+      // Add new result
+      await resultsRef.add({
+        competitorId: competitorId,
+        event: currentEvent,
+        solves: solves,
+        average: average,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    
+    // Success
+    utils.showNotification(i18n.translate('resultsAdded'), 'success');
+    
+    // Reset form
+    resultsForm.reset();
+    calculatedAverage.textContent = '-';
+    
+    // Reset button
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
+    
+  } catch (error) {
+    console.error('Error saving results:', error);
+    utils.showNotification('Error saving results', 'error');
+    
+    // Reset button
+    const submitBtn = resultsForm.querySelector('button[type="submit"]');
+    submitBtn.textContent = i18n.translate('saveResultsButton');
+    submitBtn.disabled = false;
+  }
+}
